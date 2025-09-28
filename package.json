@@ -10,6 +10,11 @@
     "llm",
     "webforai"
   ],
+  "author": "inaridiy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inaridiy/hono-auto-md.git"
+  },
   "license": "Apache-2.0",
   "type": "module",
   "main": "dist/index.js",
