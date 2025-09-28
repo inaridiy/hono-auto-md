@@ -1,6 +1,6 @@
 {
   "name": "hono-auto-md",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Hono middleware that serves Markdown responses to AI clients by converting HTML via webforai.",
   "keywords": [
     "hono",
