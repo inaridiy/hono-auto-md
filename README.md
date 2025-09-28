@@ -8,15 +8,16 @@ Hono middleware that converts HTML responses into Markdown when the incoming req
 - Reuse the same HTML templates for humans while serving Markdown to crawlers and chat assistants.
 - Add the behaviour as a single middleware that clones the downstream response and swaps in Markdown.
 
-## Installation
+## Ultra Quick Start
+
+Just install the package and add the middleware to your Hono app:
 
 ```bash
-npm install hono hono-auto-md webforai
+npm install hono hono-auto-md
 ```
 
-`hono` is declared as a peer dependency to avoid bundling multiple copies.
+Then:
 
-## Quick start
 
 ```ts
 import { Hono } from 'hono'
@@ -83,12 +84,6 @@ The entry point re-exports the pieces you may want to use directly:
 ## Detection details
 
 With no options the middleware uses `CLAUDE_CODE_HEADER_MATCHER`, which currently looks for `user-agent` values containing `Claude-User`. You can swap this out for your own heuristics or an explicit detection function. Responses that already declare a Markdown content type are skipped.
-
-## Notes
-
-- Responses are cloned, converted, and returned with a fresh `Headers` object. The middleware removes any existing `Content-Length` so the runtime can recalculate it.
-- Non-matching requests fall back to the unmodified downstream response.
-- The conversion happens after downstream handlers finish, so you can mount `autoMarkdown` near the top of your middleware chain.
 
 ## Development
 

@@ -33,43 +33,47 @@ export const autoMarkdown = (options: AutoMarkdownOptions = {}): MiddlewareHandl
   return async (c, next) => {
     await next();
 
-    const response = c.res;
-    if (!response) return;
+    try {
+      const response = c.res;
+      if (!response) return;
 
-    if (response.headers.get("content-type")?.includes("text/markdown")) {
-      return;
+      if (response.headers.get("content-type")?.includes("text/markdown")) {
+        return;
+      }
+
+      const shouldConvert =
+        typeof detect === "function"
+          ? await detect(c.req)
+          : isMatchHeader(c.req, Array.isArray(detect) ? detect : []);
+      if (!shouldConvert) return;
+
+      const responseContentType = response.headers.get("content-type")?.toLowerCase();
+      const shouldConvertContentType = allowedContentTypes.some((type) =>
+        responseContentType?.includes(type.toLowerCase()),
+      );
+      if (!shouldConvertContentType) return;
+
+      const cloned = response.clone();
+      const html = await cloned.text();
+
+      const markdown =
+        htmlToMarkdown && typeof htmlToMarkdown === "function"
+          ? await htmlToMarkdown(html)
+          : webforaiHtmlToMarkdown(html, { baseUrl: resolveBaseUrl(c.req.url), ...htmlToMarkdown });
+
+      const headers = new Headers(response.headers);
+      headers.set("content-type", contentTypeForMarkdown);
+      headers.set("x-hono-auto-md", "TRUE");
+      headers.delete("content-length");
+
+      c.res = new Response(markdown, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    } catch (e) {
+      console.error(e);
     }
-
-    const shouldConvert =
-      typeof detect === "function"
-        ? await detect(c.req)
-        : isMatchHeader(c.req, Array.isArray(detect) ? detect : []);
-    if (!shouldConvert) return;
-
-    const responseContentType = response.headers.get("content-type")?.toLowerCase();
-    const shouldConvertContentType = allowedContentTypes.some((type) =>
-      responseContentType?.includes(type.toLowerCase()),
-    );
-    if (!shouldConvertContentType) return;
-
-    const cloned = response.clone();
-    const html = await cloned.text();
-
-    const markdown =
-      htmlToMarkdown && typeof htmlToMarkdown === "function"
-        ? await htmlToMarkdown(html)
-        : webforaiHtmlToMarkdown(html, { baseUrl: resolveBaseUrl(c.req.url), ...htmlToMarkdown });
-
-    const headers = new Headers(response.headers);
-    headers.set("content-type", contentTypeForMarkdown);
-    headers.set("x-hono-auto-md", "TRUE");
-    headers.delete("content-length");
-
-    c.res = new Response(markdown, {
-      status: response.status,
-      statusText: response.statusText,
-      headers,
-    });
   };
 };
 
