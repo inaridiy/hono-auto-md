@@ -20,7 +20,9 @@ const createApp = (options?: AutoMarkdownOptions) => {
   app.use("*", autoMarkdown(options));
   app.get("/", (c) => c.html(HTML_PAGE));
   app.get("/plain", (c) => c.text("Plain text", 200, { "content-type": "text/plain" }));
-  app.get("/markdown", (c) => c.text("# Already Markdown", 200, { "content-type": "text/markdown" }));
+  app.get("/markdown", (c) =>
+    c.text("# Already Markdown", 200, { "content-type": "text/markdown" }),
+  );
   return app;
 };
 

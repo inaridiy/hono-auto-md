@@ -94,3 +94,15 @@ npm run test
 ```
 
 Tests run on [Vitest](https://vitest.dev/). The compiled output lives in `dist/` and is published automatically by npm's default files list.
+
+## Release workflow
+
+- Run `pnpm run changeset` whenever you need to record a change for release. Commit the generated file alongside your code.
+- Push your branch and open a pull request. The CI workflow runs linting, type-checking, tests, and the build on Node.js 22.
+- When changesets are present on `master`, the Release workflow will either raise a release PR or publish straight to npm using Trusted Publishing. No `NPM_TOKEN` secrets are required once the npm package has been linked to this repository as a trusted publisher.
+
+### One-time setup for Trusted Publishing
+
+1. In the npm package settings, add this repository as a trusted publisher and select the `Release` workflow file.
+2. Verify that the npm account has the package claimed and that publishing provenance is enabled (the workflow already exports `NPM_CONFIG_PROVENANCE=true`).
+3. Merge the generated release PR or trigger the workflow manually with `workflow_dispatch` to publish after the trusted link is active.

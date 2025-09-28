@@ -30,6 +30,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check",
     "lint:fix": "biome check --write",
+    "changeset": "changeset",
+    "release": "changeset publish",
     "prepare": "npm run build",
     "test": "vitest run"
   },
@@ -41,9 +43,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
+    "@changesets/cli": "^2.29.7",
     "hono": "^4.9.9",
     "tsup": "^8.5.0",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }
