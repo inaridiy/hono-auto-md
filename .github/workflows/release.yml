@@ -44,7 +44,7 @@ jobs:
           version: pnpm changeset version
           publish: pnpm run release
           setupGitUser: true
-          commit: chore: release packages
+          commit: "chore: release packages"
           title: Release packages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
