@@ -38,8 +38,9 @@
   "peerDependencies": {
     "hono": "^4.0.0"
   },
-  "dependencies": {
-    "webforai": "^2.1.1"
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
@@ -50,8 +51,7 @@
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
+  "dependencies": {
+    "webforai": "^2.1.1"
   }
 }
