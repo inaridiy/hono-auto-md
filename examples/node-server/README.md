@@ -7,7 +7,7 @@ This example spins up a local server with `@hono/node-server` and the `autoMarkd
 Start the server with:
 
 ```bash
-pnpx tsx examples/node-server/server.ts 
+npx tsx examples/node-server/server.ts 
 ```
 
 The server listens on [http://localhost:8787](http://localhost:8787).
