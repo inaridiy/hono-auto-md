@@ -1,0 +1,49 @@
+{
+  "name": "hono-auto-md",
+  "version": "0.1.0",
+  "description": "Hono middleware that serves Markdown responses to AI clients by converting HTML via webforai.",
+  "keywords": [
+    "hono",
+    "middleware",
+    "markdown",
+    "ai",
+    "llm",
+    "webforai"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm,cjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "prepare": "npm run build",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "hono": "^4.0.0"
+  },
+  "dependencies": {
+    "webforai": "^2.1.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.4",
+    "hono": "^4.9.9",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}
