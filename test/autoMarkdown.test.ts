@@ -1,93 +1,90 @@
+import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 import autoMarkdown from "../src/index";
 
-const createRequest = (headers: Record<string, string>) => {
-  return new Request("https://example.com/articles/1", {
-    headers,
-  });
+const HTML_PAGE = `
+  <main>
+    <h1>Hello!</h1>
+    <p>This page will be converted to Markdown for AI agents.</p>
+  </main>
+`;
+
+const createApp = (options?: Parameters<typeof autoMarkdown>[0]) => {
+  const app = new Hono();
+  app.use("*", autoMarkdown(options));
+  app.get("/", (c) => c.html(HTML_PAGE));
+  app.get("/plain", (c) => c.text("Plain text", 200, { "content-type": "text/plain" }));
+  return app;
 };
 
 describe("autoMarkdown middleware", () => {
   it("converts HTML responses to Markdown for AI-looking requests", async () => {
-    const middleware = autoMarkdown();
-    const req = createRequest({ "user-agent": "ChatGPT Browser" });
+    const app = createApp();
 
-    const ctx: any = { req: { raw: req }, res: undefined };
-    const htmlBody = "<main><h1>Hello!</h1><p>This page.</p></main>";
-    let originalResponse: Response | undefined;
+    const response = await app.request("https://example.com/", {
+      headers: { "user-agent": "ChatGPT Browser" },
+    });
 
-    const next = async () => {
-      originalResponse = new Response(htmlBody, {
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
-      ctx.res = originalResponse;
-    };
+    expect(response.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
+    expect(response.headers.get("x-hono-auto-md")).toBe("1");
 
-    await middleware(ctx, next);
-
-    expect(ctx.res).not.toBe(originalResponse);
-    expect(ctx.res?.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
-    expect(ctx.res?.headers.get("x-hono-auto-md")).toBe("1");
-
-    const markdown = await ctx.res!.text();
+    const markdown = await response.text();
     expect(markdown).toContain("Hello!");
     expect(markdown).not.toContain("<h1>");
   });
 
   it("leaves HTML untouched for regular browsers", async () => {
-    const middleware = autoMarkdown();
-    const req = createRequest({ "user-agent": "Mozilla/5.0" });
+    const app = createApp();
 
-    const ctx: any = { req: { raw: req }, res: undefined };
-    const originalResponse = new Response("<h1>Welcome</h1>", {
-      headers: { "content-type": "text/html; charset=utf-8" },
+    const response = await app.request("https://example.com/", {
+      headers: { "user-agent": "Mozilla/5.0" },
     });
 
-    const next = async () => {
-      ctx.res = originalResponse;
-    };
+    expect(response.headers.get("content-type")).toContain("text/html");
 
-    await middleware(ctx, next);
-
-    expect(ctx.res).toBe(originalResponse);
+    const body = await response.text();
+    expect(body).toContain("<h1>Hello!</h1>");
   });
 
   it("respects allowedContentTypes and skips conversion", async () => {
-    const middleware = autoMarkdown({ allowedContentTypes: ["application/xhtml+xml"] });
-    const req = createRequest({ "user-agent": "ChatGPT Browser" });
+    const app = createApp({ allowedContentTypes: ["application/xhtml+xml"] });
 
-    const ctx: any = { req: { raw: req }, res: undefined };
-    const originalResponse = new Response("<h1>Hi</h1>", {
-      headers: { "content-type": "text/plain" },
+    const response = await app.request("https://example.com/", {
+      headers: { "user-agent": "ChatGPT Browser" },
     });
 
-    const next = async () => {
-      ctx.res = originalResponse;
-    };
-
-    await middleware(ctx, next);
-
-    expect(ctx.res).toBe(originalResponse);
+    expect(response.headers.get("content-type")).toContain("text/html");
   });
 
   it("uses custom detect function when provided", async () => {
-    const middleware = autoMarkdown({
+    const app = createApp({
       detect: (request) => request.headers.get("x-my-ai-bot") === "1",
     });
-    const req = createRequest({ "user-agent": "Mozilla/5.0", "x-my-ai-bot": "1" });
 
-    const ctx: any = { req: { raw: req }, res: undefined };
-    const htmlBody = "<h1>Docs</h1>";
+    const response = await app.request("https://example.com/", {
+      headers: {
+        "user-agent": "Mozilla/5.0",
+        "x-my-ai-bot": "1",
+      },
+    });
 
-    const next = async () => {
-      ctx.res = new Response(htmlBody, {
-        headers: { "content-type": "text/html" },
-      });
-    };
+    expect(response.headers.get("content-type")).toBe("text/markdown; charset=utf-8");
 
-    await middleware(ctx, next);
+    const markdown = await response.text();
+    expect(markdown).toContain("Hello!");
+  });
 
-    const markdown = await ctx.res!.text();
-    expect(markdown).toContain("Docs");
+  it("does not convert non-HTML responses", async () => {
+    const app = createApp();
+
+    const response = await app.request("https://example.com/plain", {
+      headers: { "user-agent": "ChatGPT Browser" },
+    });
+
+    expect(response.headers.get("content-type")).toBe("text/plain");
+    expect(response.headers.get("x-hono-auto-md")).toBeNull();
+
+    const body = await response.text();
+    expect(body).toBe("Plain text");
   });
 });
