@@ -18,6 +18,9 @@ importers:
       '@changesets/cli':
         specifier: ^2.29.7
         version: 2.29.7
+      '@hono/node-server':
+        specifier: ^1.19.4
+        version: 1.19.4(hono@4.9.9)
       hono:
         specifier: ^4.9.9
         version: 4.9.9
@@ -308,6 +311,12 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@hono/node-server@1.19.4':
+    resolution: {integrity: sha512-AWKQZ/YkHUBSHeL/5Ld8FWgUs6wFf4TxGYxqp9wLZxRdFuHBpXmgOq+CuDoL4vllkZLzovCf5HBJnypiy3EtHA==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
 
   '@inquirer/external-editor@1.0.2':
     resolution: {integrity: sha512-yy9cOoBnx58TlsPrIxauKIFQTiyH+0MK4e97y4sV9ERbI+zDxw7i2hxHLCIEGIE/8PPvDxGhgzIOTSOWcs6/MQ==}
@@ -1878,6 +1887,10 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.10':
     optional: true
+
+  '@hono/node-server@1.19.4(hono@4.9.9)':
+    dependencies:
+      hono: 4.9.9
 
   '@inquirer/external-editor@1.0.2':
     dependencies:
