@@ -1,3 +1,6 @@
+<img width="3914" height="2193" alt="image" src="https://github.com/user-attachments/assets/a7a1a012-5faf-4874-abd0-8328d9b57172" />
+
+
 # hono-auto-md
 
 Hono middleware that converts HTML responses into Markdown when the incoming request is likely made by an AI agent. It relies on [`webforai`](https://www.npmjs.com/package/webforai) so language models receive content that is easier to consume while browsers keep getting HTML.
